@@ -1,0 +1,47 @@
+' Preparar variables usando Variant para la fecha para evitar Error 13
+    Dim u As String, status As String
+    Dim fecha As Variant, vPrevFecha As Variant
+    
+    For rr = 2 To lastRowSrc2
+        u = Trim$(CStr(wsSrc2.Cells(rr, "C").Value))
+        
+        If Len(u) <> 0 Then
+            status = CStr(wsSrc2.Cells(rr, "G").Value)
+            fecha = wsSrc2.Cells(rr, "AS").Value 
+            
+            ' Si la celda no contiene una fecha válida, le asignamos un valor mínimo por defecto
+            If Not IsDate(fecha) Then
+                fecha = DateSerial(1900, 1, 1)
+            Else
+                fecha = CDate(fecha)
+            End If
+    
+            ' Si el usuario ya tiene un registro, actualizar...
+            If dictCurriculum.Exists(u) Then
+                Dim arrPrev() As Variant
+                arrPrev = dictCurriculum(u) ' arrPrev(0)=status, arrPrev(1)=fecha
+        
+                ' Evaluar el nuevo estado
+                Dim newStatus As Boolean
+                newStatus = (InStr(1, status, "Completed", vbTextCompare) > 0) Or arrPrev(0)
+        
+                ' Mantener la fecha más reciente
+                Dim newFecha As Date
+                vPrevFecha = arrPrev(1)
+                
+                If fecha > vPrevFecha Then
+                    newFecha = fecha
+                Else
+                    newFecha = vPrevFecha
+                End If
+        
+                dictCurriculum(u) = Array(newStatus, newFecha)
+        
+            Else
+                ' Primer registro del usuario
+                dictCurriculum(u) = Array( _
+                    InStr(1, status, "Completed", vbTextCompare) > 0, _
+                    fecha)
+            End If
+        End If
+    Next rr
