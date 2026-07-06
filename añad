@@ -1,0 +1,24 @@
+' Asignar Columna F y G en Informe
+    For r = 3 To lastRowInforme
+        key = Trim$(CStr(wsInforme.Cells(r, "C").Value))
+        
+        If Len(key) = 0 Then
+            wsInforme.Cells(r, "F").Value = "Pending"
+            wsInforme.Cells(r, "F").Font.Color = vbRed
+            
+        ElseIf dictCurriculum.Exists(key) Then
+            ' dictCurriculum(key)(0) contiene el Boolean, dictCurriculum(key)(1) contiene la Fecha
+            If dictCurriculum(key)(0) = True Then
+                wsInforme.Cells(r, "F").Value = "Completed"
+                wsInforme.Cells(r, "G").Value = dictCurriculum(key)(1) ' Extraemos la fecha del Array
+                wsInforme.Cells(r, "F").Font.Color = vbGreen
+            Else
+                wsInforme.Cells(r, "F").Value = "Pending"
+                wsInforme.Cells(r, "F").Font.Color = vbRed
+            End If
+            
+        Else
+            wsInforme.Cells(r, "F").Value = "Pending"
+            wsInforme.Cells(r, "F").Font.Color = vbRed
+        End If
+    Next r
